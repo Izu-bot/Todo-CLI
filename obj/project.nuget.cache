@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "f7nfimEg65NJ3GJ3WZV0qJb4lThb9JHYqlnmFEYMADxzVFRAGcKrlpJh5m0QKyL1V8FkU7NUob8XGJgmM9ExeQ==",
+  "success": true,
+  "projectFilePath": "/home/kauan/Documents/Estudos/C#/Projetos/todo/todo.csproj",
+  "expectedPackageFiles": [
+    "/home/kauan/.nuget/packages/system.commandline/2.0.0-beta4.22272.1/system.commandline.2.0.0-beta4.22272.1.nupkg.sha512"
+  ],
+  "logs": []
+}
