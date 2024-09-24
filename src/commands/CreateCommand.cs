@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.IO.Compression;
 using System.Text.Json;
 using todo.src.model;
 using todo.src.utils;
@@ -16,14 +17,17 @@ public class CreateCommand : Command
         : base("add", "Adiciona um novo item na lista.")
     {
         // Adiciona um novo argumento ao comando
-        var titleArgument = new Argument<string[]>("title", "Titulo do item para fazer");
+        var titleArgument = new Argument<string[]>("title", "Titulo da tarefa")
+        {
+            // Exige pelo menos um titulo
+            Arity = ArgumentArity.OneOrMore
+        };
         AddArgument(titleArgument);
 
         // Diz o que o comando vai fazer ao ser chamado
         this.SetHandler((string[] titles) =>
         {
-            // if(titles.Any())
-            //     Console.WriteLine("✅ Adicionado");
+            if(titles.Length != 0) Console.WriteLine("✅ Adicionado");
 
             foreach (var title in titles)
             {

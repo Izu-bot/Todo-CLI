@@ -10,6 +10,7 @@ public class Program
         var rootCommand = new RootCommand("App gerenciador de lista de tarefas");
 
         rootCommand.AddCommand(new CreateCommand());
+        rootCommand.AddCommand(new ListCommand());
 
         return await rootCommand.InvokeAsync(args);
     }

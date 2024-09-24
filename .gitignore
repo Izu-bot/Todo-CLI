@@ -6,6 +6,9 @@
 # Changelog file
 CHANGELOG.MD
 
+# To do list file
+todos.json
+
 # dotenv files
 .env
 
