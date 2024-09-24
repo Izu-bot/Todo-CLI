@@ -16,20 +16,25 @@ public class CreateCommand : Command
         : base("add", "Adiciona um novo item na lista.")
     {
         // Adiciona um novo argumento ao comando
-        var titleArgument = new Argument<string>("title", "Titulo do item para fazer");
+        var titleArgument = new Argument<string[]>("title", "Titulo do item para fazer");
         AddArgument(titleArgument);
 
         // Diz o que o comando vai fazer ao ser chamado
-        this.SetHandler((string title) =>
+        this.SetHandler((string[] titles) =>
         {
-            string formatter = title[0].ToString().ToUpper() + title[1..].ToLower();
+            // if(titles.Any())
+            //     Console.WriteLine("✅ Adicionado");
 
-            var newTodo = new Todo { Title = formatter };
+            foreach (var title in titles)
+            {
+                string formatter = title[0].ToString().ToUpper() + title[1..].ToLower();
 
-            // Adiciona o novo todo ao arquivo JSON de Todos
-            AddTodoToFile(newTodo);
+                var newTodo = new Todo { Title = formatter };
 
-            ColorConsole.HighlightMessage($"Titulo: {formatter}", ConsoleColor.Yellow);
+                // Adiciona o novo todo ao arquivo JSON de Todos
+                AddTodoToFile(newTodo);
+                ColorConsole.HighlightMessage($"Titulo: {formatter}, Data: {newTodo.CreatedAt.ToString("d")}", ConsoleColor.Green);
+            }
 
         }, titleArgument);
     }
