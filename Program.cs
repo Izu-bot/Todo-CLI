@@ -11,6 +11,7 @@ public class Program
 
         rootCommand.AddCommand(new CreateCommand());
         rootCommand.AddCommand(new ListCommand());
+        rootCommand.AddCommand(new DeleteCommand());
 
         return await rootCommand.InvokeAsync(args);
     }

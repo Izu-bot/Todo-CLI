@@ -40,7 +40,7 @@ public class ListCommand : Command
                     string status = todo.IsDone ? "Concluido" : "Não Concluido";
 
                     ColorConsole.HighlightMessage(
-                        $"Titulo: {todo.Title}, Status: {status}, Criado: {todo.CreatedAt.ToString("d")}",
+                        $"ID: {todo.Id}, Titulo: {todo.Title}, Status: {status}, Criado: {todo.CreatedAt.ToString("d")}",
                         ConsoleColor.Blue
                         );
                 }
