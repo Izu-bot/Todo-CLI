@@ -20,19 +20,31 @@ public class CreateCommand : Command
         var titleArgument = new Argument<string[]>("title", "Titulo da tarefa")
         {
             // Exige pelo menos um titulo
-            Arity = ArgumentArity.OneOrMore
+            Arity = ArgumentArity.OneOrMore,
+
         };
+
         AddArgument(titleArgument);
+
+        // Não funciona
+        // titleArgument.AddValidator(result =>
+        // {
+        //     // Valida se o argumento passado é vazio, nulo ou contém espaços em branco
+        //     if (result.GetValueForArgument(titleArgument) == null)
+        //     {
+        //        result.ErrorMessage = "O titulo não pode ser nulo.";
+        //     }
+        // });
 
         // Diz o que o comando vai fazer ao ser chamado
         this.SetHandler((string[] titles) =>
         {
-            if(titles.Length != 0) Console.WriteLine("✅ Adicionado");
+            Console.WriteLine("✅ Adicionado");
 
             foreach (var title in titles)
             {
+                // Deixa a primeira letra maiuscula e as demais minuscula
                 string formatter = title[0].ToString().ToUpper() + title[1..].ToLower();
-
                 var newTodo = new Todo { Title = formatter };
 
                 // Adiciona o novo todo ao arquivo JSON de Todos
@@ -51,6 +63,7 @@ public class CreateCommand : Command
         if (File.Exists(FilePath))
         {
             var jsonData = File.ReadAllText(FilePath);
+            // deserializa a string jsonData em uma lista de objetos Todo se retornar null garante uma lista vazia
             todos = JsonSerializer.Deserialize<List<Todo>>(jsonData) ?? [];
         }
         else
