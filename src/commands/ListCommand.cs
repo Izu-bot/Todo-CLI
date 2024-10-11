@@ -13,7 +13,15 @@ public class ListCommand : Command
     public ListCommand()
         : base("list", "Lista todas as tarefas")
     {
-        this.SetHandler(() =>
+        var idOption = new Option<int>(
+            name: "--id",
+            description: "Uma opção para pesquisar por Ids."
+        );
+        idOption.AddAlias("-i");
+
+        AddOption(idOption);
+
+        this.SetHandler((id) =>
         {
             if (!File.Exists("todos.json"))
             {
@@ -39,13 +47,16 @@ public class ListCommand : Command
                 {
                     string status = todo.IsDone ? "Concluido" : "Não Concluido";
 
-                    ColorConsole.HighlightMessage(
-                        $"ID: {todo.Id}, Titulo: {todo.Title}, Status: {status}, Criado: {todo.CreatedAt.ToString("d")}",
+                    if (todo.Id == id || id == 0)
+                    {
+                        ColorConsole.HighlightMessage(
+                        $"ID: {todo.Id}, Titulo: {todo.Title}, Status: {status}, Criado: {todo.CreatedAt:d}",
                         ConsoleColor.Blue
                         );
+                    }
                 }
             }
-        });
+        }, idOption);
 
     }
 }
