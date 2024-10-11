@@ -22,7 +22,7 @@ public class CreateCommand : Command
             // Exige pelo menos um titulo
             Arity = ArgumentArity.OneOrMore,
         };
-        
+
         titleArgument.AddValidator(result =>
         {
             var titles = result.GetValueForArgument(titleArgument); // Captura a coleção de argumentos
@@ -48,12 +48,10 @@ public class CreateCommand : Command
 
                 // Adiciona o novo todo ao arquivo JSON de Todos
                 AddTodoToFile(newTodo);
-                ColorConsole.HighlightMessage($"Titulo: {formatter}, Data: {newTodo.CreatedAt.ToString("d")}", ConsoleColor.Green);
+                ColorConsole.HighlightMessage($"Titulo: {formatter}, Data: {newTodo.CreatedAt:d)}", ConsoleColor.Green);
             }
-
+            Console.WriteLine("✅ Adicionado");
         }, titleArgument);
-
-        Console.WriteLine("✅ Adicionado");
     }
 
     private static void AddTodoToFile(Todo todo)
