@@ -21,20 +21,21 @@ public class CreateCommand : Command
         {
             // Exige pelo menos um titulo
             Arity = ArgumentArity.OneOrMore,
-
         };
-
+        
+        titleArgument.AddValidator(result =>
+        {
+            var titles = result.GetValueForArgument(titleArgument); // Captura a coleção de argumentos
+            foreach (var title in titles) // Itera sobre cada titulo
+            {
+                if (string.IsNullOrWhiteSpace(title)) // Verifica se está vazio ou com espaços em branco
+                {
+                    result.ErrorMessage = "Os titulos não podem estar vazios.";
+                    return;
+                }
+            }
+        });
         AddArgument(titleArgument);
-
-        // Não funciona
-        // titleArgument.AddValidator(result =>
-        // {
-        //     // Valida se o argumento passado é vazio, nulo ou contém espaços em branco
-        //     if (result.GetValueForArgument(titleArgument) == null)
-        //     {
-        //        result.ErrorMessage = "O titulo não pode ser nulo.";
-        //     }
-        // });
 
         // Diz o que o comando vai fazer ao ser chamado
         this.SetHandler((string[] titles) =>
