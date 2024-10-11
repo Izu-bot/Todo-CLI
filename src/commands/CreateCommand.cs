@@ -40,12 +40,10 @@ public class CreateCommand : Command
         // Diz o que o comando vai fazer ao ser chamado
         this.SetHandler((string[] titles) =>
         {
-            Console.WriteLine("✅ Adicionado");
-
             foreach (var title in titles)
             {
                 // Deixa a primeira letra maiuscula e as demais minuscula
-                string formatter = title[0].ToString().ToUpper() + title[1..].ToLower();
+                string formatter = title[0].ToString().ToUpper() + title[1..].ToLower().Replace(",", "");
                 var newTodo = new Todo { Title = formatter };
 
                 // Adiciona o novo todo ao arquivo JSON de Todos
@@ -54,6 +52,8 @@ public class CreateCommand : Command
             }
 
         }, titleArgument);
+
+        Console.WriteLine("✅ Adicionado");
     }
 
     private static void AddTodoToFile(Todo todo)
