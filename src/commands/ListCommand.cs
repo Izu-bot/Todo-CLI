@@ -11,11 +11,11 @@ public class ListCommand : Command
     public const string FilePath = "todos.json";
 
     public ListCommand()
-        : base("list", "Lista todas as tarefas")
+        : base("list", "List all taks")
     {
         var idOption = new Option<int>(
             name: "--id",
-            description: "Uma opção para pesquisar por Ids."
+            description: "An option to search by Ids."
         );
         idOption.AddAlias("-i");
 
@@ -27,7 +27,7 @@ public class ListCommand : Command
             {
                 ColorConsole.HighlightMessage
                 (
-                    "Erro: O arquivo 'todos.json' não foi encontrado.",
+                    "Error: The file 'todos.json' could not be found.",
                     ConsoleColor.Red
                 );
                 Environment.Exit(1);
@@ -39,18 +39,18 @@ public class ListCommand : Command
 
             if (todos.Count == 0)
             {
-                ColorConsole.HighlightMessage("Nenhuma tarefa encontrada", ConsoleColor.Yellow);
+                ColorConsole.HighlightMessage("No tasks found", ConsoleColor.Yellow);
             }
             else
             {
                 foreach (var todo in todos)
                 {
-                    string status = todo.IsDone ? "Concluido" : "Não Concluido";
+                    string status = todo.IsDone ? "Completed" : "Not completed";
 
                     if (todo.Id == id || id == 0)
                     {
                         ColorConsole.HighlightMessage(
-                        $"ID: {todo.Id}, Titulo: {todo.Title}, Status: {status}, Criado: {todo.CreatedAt:d}",
+                        $"ID: {todo.Id}, Title: {todo.Title}, Status: {status}, created at: {todo.CreatedAt:d}",
                         ConsoleColor.Blue
                         );
                     }

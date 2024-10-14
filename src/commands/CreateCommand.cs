@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.IO.Compression;
 using System.Text.Json;
 using todo.src.model;
 using todo.src.utils;
@@ -14,13 +13,13 @@ public class CreateCommand : Command
     };
     public const string FilePath = "todos.json";
     public CreateCommand()
-        : base("add", "Adiciona um novo item na lista.")
+        : base("add", "Adds a new item to the list.")
     {
         // Adiciona um novo argumento ao comando
-        var titleArgument = new Argument<string[]>("title", "Titulo da tarefa")
+        var titleArgument = new Argument<string[]>("title", "Task title")
         {
             // Exige pelo menos um titulo
-            Arity = ArgumentArity.OneOrMore,
+            Arity = ArgumentArity.OneOrMore
         };
 
         titleArgument.AddValidator(result =>
@@ -30,7 +29,7 @@ public class CreateCommand : Command
             {
                 if (string.IsNullOrWhiteSpace(title)) // Verifica se está vazio ou com espaços em branco
                 {
-                    result.ErrorMessage = "Os titulos não podem estar vazios.";
+                    result.ErrorMessage = "Titles must not be empty.";
                     return;
                 }
             }
@@ -48,9 +47,9 @@ public class CreateCommand : Command
 
                 // Adiciona o novo todo ao arquivo JSON de Todos
                 AddTodoToFile(newTodo);
-                ColorConsole.HighlightMessage($"Titulo: {formatter}, Data: {newTodo.CreatedAt:d)}", ConsoleColor.Green);
+                ColorConsole.HighlightMessage($"Title: {formatter}, Date: {newTodo.CreatedAt:d}", ConsoleColor.Green);
             }
-            Console.WriteLine("✅ Adicionado");
+            // Console.WriteLine("✅ Adicionado");
         }, titleArgument);
     }
 

@@ -14,10 +14,10 @@ public class UpdateCommand : Command
     };
     public const string FilePath = "todos.json";
     public UpdateCommand()
-        : base("update", "Atualiza uma tarefa")
+        : base("update", "Update a task")
     {
-        var idArgument = new Argument<int>("id", "O ID da tarefa que deseja alterar.");
-        var titleArgument = new Argument<string>("title", "Novo titulo que deseja atribui a tarefa");
+        var idArgument = new Argument<int>("id", "The ID of the task you want to change.");
+        var titleArgument = new Argument<string>("title", "New title you want to assign to the task.");
 
         this.AddArgument(idArgument);
         this.AddArgument(titleArgument);
@@ -27,7 +27,7 @@ public class UpdateCommand : Command
             if (!File.Exists(FilePath))
             {
                 ColorConsole.HighlightMessage(
-                    "Erro: O arquivo 'todos.json' não foi encontrado.",
+                    "Error: The file 'todos.json' could not be found.",
                     ConsoleColor.Red
                     );
                 Environment.Exit(1);
@@ -40,7 +40,7 @@ public class UpdateCommand : Command
             if (todos == null)
             {
                 ColorConsole.HighlightMessage(
-                    "Erro: Não há tarefas para atualizar",
+                    "Error: The file 'todos.json' could not be found.",
                     ConsoleColor.Red
                 );
                 return;
@@ -51,7 +51,7 @@ public class UpdateCommand : Command
             if (todoToUpdate == null)
             {
                 ColorConsole.HighlightMessage(
-                    $"Erro: A tarefa com o id:{id} não foi encontrado",
+                    $"Error: The task with id:{id} was not found",
                     ConsoleColor.Red
                 );
                 return;
@@ -67,7 +67,7 @@ public class UpdateCommand : Command
             var updateTodosJson = JsonSerializer.Serialize(todos, s_writeOptions);
             File.WriteAllText(FilePath, updateTodosJson);
 
-            ColorConsole.HighlightMessage("Tarefa atualizada com sucesso!", ConsoleColor.Green);
+            ColorConsole.HighlightMessage("Task successfully updated!", ConsoleColor.Green);
         }, idArgument, titleArgument);
     }
 }

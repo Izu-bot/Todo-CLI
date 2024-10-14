@@ -1,7 +1,5 @@
 using System.CommandLine;
-using System.Drawing;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using todo.src.model;
 using todo.src.utils;
 
@@ -15,23 +13,31 @@ public class DeleteCommand : Command
     };
     public const string FilePath = "todos.json";
     public DeleteCommand()
-        : base("remove", "Remove uma tarefa da lista de tarefas.")
+        : base("remove", "Removes a task from the task list.")
     {
-        var idArgument = new Argument<int>("id", "Fornecer o id da tarefa\nDica: Você pode obter o Id através do comando 'list'");
+        var idArgument = new Argument<int>("id", "Provide the task id.");
         idArgument.AddValidator(result =>
         {
-            if (result.GetValueOrDefault<int>() < 1)
-                result.ErrorMessage = "O id não pode ser 0 e nem um número negativo.";
+            try
+            {
+                if (result.GetValueOrDefault<int>() < 1)
+                    result.ErrorMessage = "The id cannot be 0 or a negative number.";
+            }
+            catch (Exception)
+            {
+                result.ErrorMessage = "Enter a valid number.";
+            }
+
         });
         AddArgument(idArgument);
 
-        this.SetHandler((int id) => 
+        this.SetHandler((int id) =>
         {
             if (!File.Exists(FilePath))
             {
                 ColorConsole.HighlightMessage
                 (
-                    "Erro: O arquivo 'todos.json' não foi encontrado.",
+                    "Error: The file 'todos.json' could not be found.",
                     ConsoleColor.Red
                 );
                 Environment.Exit(1);
@@ -48,7 +54,7 @@ public class DeleteCommand : Command
             // Usa a pesquisa binaria para encontrar o indice da tarefa com o ID fornecido
             int index = BinarySearch(todos, id);
 
-            if(index >= 0)
+            if (index >= 0)
             {
                 // Remove a tarefa
                 var removedTodo = todos[index];
@@ -58,11 +64,11 @@ public class DeleteCommand : Command
                 var updateJson = JsonSerializer.Serialize(todos, s_writeOptions);
                 File.WriteAllText(FilePath, updateJson);
 
-                ColorConsole.HighlightMessage($"Tarefa com Id {removedTodo.Id} foi removida.", ConsoleColor.Green);
+                ColorConsole.HighlightMessage($"Task with id {removedTodo.Id} has been removed.", ConsoleColor.Green);
             }
             else
             {
-                ColorConsole.HighlightMessage($"Tarefa com id {id} não foi encontrada.", ConsoleColor.Yellow);
+                ColorConsole.HighlightMessage($"Task with id {id} not found.", ConsoleColor.Yellow);
             }
         }, idArgument);
     }
@@ -76,9 +82,9 @@ public class DeleteCommand : Command
         {
             int mid = (left + right) / 2;
 
-            if(todos[mid].Id == id) return mid; // Encontrou o item
+            if (todos[mid].Id == id) return mid; // Encontrou o item
 
-            if(todos[mid].Id < id)
+            if (todos[mid].Id < id)
             {
                 left = mid + 1; // Busca na metade da direita
             }
