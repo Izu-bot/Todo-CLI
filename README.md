@@ -4,11 +4,11 @@ Todo CLI is a command line tool designed to make it easier to manage your daily 
 
 ## Commands
 
-In total, it contains four basic commands:
-    - create
-    - remove
-    - list
-    - update
+In total, it contains four basic commands
+- create
+- remove
+- list
+- update
 
 ### Documentation
 
