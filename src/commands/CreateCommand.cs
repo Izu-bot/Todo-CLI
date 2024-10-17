@@ -13,7 +13,7 @@ public class CreateCommand : Command
     };
     public const string FilePath = "todos.json";
     public CreateCommand()
-        : base("add", "Adds a new item to the list.")
+        : base("add", "Adds a new item to the list")
     {
         // Adiciona um novo argumento ao comando
         var titleArgument = new Argument<string[]>("title", "Task title")
@@ -29,7 +29,7 @@ public class CreateCommand : Command
             {
                 if (string.IsNullOrWhiteSpace(title)) // Verifica se está vazio ou com espaços em branco
                 {
-                    result.ErrorMessage = "Titles must not be empty.";
+                    result.ErrorMessage = "Titles must not be empty";
                     return;
                 }
             }

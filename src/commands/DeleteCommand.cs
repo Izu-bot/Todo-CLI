@@ -13,19 +13,19 @@ public class DeleteCommand : Command
     };
     public const string FilePath = "todos.json";
     public DeleteCommand()
-        : base("remove", "Removes a task from the task list.")
+        : base("remove", "Removes a task from the task list")
     {
-        var idArgument = new Argument<int>("id", "Provide the task id.");
+        var idArgument = new Argument<int>("id", "Provide the task id");
         idArgument.AddValidator(result =>
         {
             try
             {
                 if (result.GetValueOrDefault<int>() < 1)
-                    result.ErrorMessage = "The id cannot be 0 or a negative number.";
+                    result.ErrorMessage = "The id cannot be 0 or a negative number";
             }
             catch (Exception)
             {
-                result.ErrorMessage = "Enter a valid number.";
+                result.ErrorMessage = "Enter a valid number";
             }
 
         });
@@ -37,7 +37,7 @@ public class DeleteCommand : Command
             {
                 ColorConsole.HighlightMessage
                 (
-                    "Error: The file 'todos.json' could not be found.",
+                    "Error: The file 'todos.json' could not be found",
                     ConsoleColor.Red
                 );
                 Environment.Exit(1);
@@ -64,11 +64,11 @@ public class DeleteCommand : Command
                 var updateJson = JsonSerializer.Serialize(todos, s_writeOptions);
                 File.WriteAllText(FilePath, updateJson);
 
-                ColorConsole.HighlightMessage($"Task with id {removedTodo.Id} has been removed.", ConsoleColor.Green);
+                ColorConsole.HighlightMessage($"Task with id {removedTodo.Id} has been removed", ConsoleColor.Green);
             }
             else
             {
-                ColorConsole.HighlightMessage($"Task with id {id} not found.", ConsoleColor.Yellow);
+                ColorConsole.HighlightMessage($"Task with id {id} not found", ConsoleColor.Yellow);
             }
         }, idArgument);
     }

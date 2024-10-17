@@ -15,7 +15,7 @@ public class ListCommand : Command
     {
         var idOption = new Option<int>(
             name: "--id",
-            description: "An option to search by Ids."
+            description: "An option to search by Ids"
         );
         idOption.AddAlias("-i");
 
@@ -27,7 +27,7 @@ public class ListCommand : Command
             {
                 ColorConsole.HighlightMessage
                 (
-                    "Error: The file 'todos.json' could not be found.",
+                    "Error: The file 'todos.json' could not be found",
                     ConsoleColor.Red
                 );
                 Environment.Exit(1);
