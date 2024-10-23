@@ -7,7 +7,7 @@ public class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        var rootCommand = new RootCommand("App gerenciador de lista de tarefas");
+        var rootCommand = new RootCommand("To-do list manager app");
 
         rootCommand.AddCommand(new CreateCommand());
         rootCommand.AddCommand(new ListCommand());
