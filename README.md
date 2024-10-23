@@ -32,4 +32,4 @@ this app only works on Debian derivatives, it does not yet have a Windows versio
 
 ##### Specifications
 
-This is version `1.0.0` so there will still be changes, mainly to how the `all.json` file works. Currently it is generated in the repository where you downloaded the app.
+This is version `1.0.0` so there will still be changes, mainly to how the `todos.json` file works. Currently it is generated in the repository where you downloaded the app.
