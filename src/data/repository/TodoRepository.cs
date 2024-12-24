@@ -3,10 +3,9 @@ using todo.src.model;
 
 namespace todo.data.repository;
 
-public class TodoRepository : ITodoRepository
+public class TodoRepository(ApplicationDbContext context) : ITodoRepository
 {
-    private readonly ApplicationDbContext _context;
-    public TodoRepository(ApplicationDbContext context) => _context = context;
+    private readonly ApplicationDbContext _context = context;
     public void AddTodo(Todo todo)
     {
         _context.Todos.Add(todo);
