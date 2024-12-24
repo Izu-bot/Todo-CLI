@@ -1,13 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "as5DjiK5zplaZZVXBZTofiHln3k/iCM0Xk4202Hejb9xZvzuyjrMWRAOsYZbJf4yw0b2KnQ0uhB5oIPnhUp/KQ==",
+  "dgSpecHash": "4bU0tHzfUmM=",
   "success": true,
   "projectFilePath": "/home/kauan/Documents/Estudos/C#/Projetos/todo/todo.csproj",
   "expectedPackageFiles": [
-    "/home/kauan/.nuget/packages/system.commandline/2.0.0-beta4.22272.1/system.commandline.2.0.0-beta4.22272.1.nupkg.sha512",
-    "/home/kauan/.nuget/packages/microsoft.netcore.app.runtime.linux-x64/8.0.10/microsoft.netcore.app.runtime.linux-x64.8.0.10.nupkg.sha512",
-    "/home/kauan/.nuget/packages/microsoft.aspnetcore.app.runtime.linux-x64/8.0.10/microsoft.aspnetcore.app.runtime.linux-x64.8.0.10.nupkg.sha512",
-    "/home/kauan/.nuget/packages/microsoft.netcore.app.host.linux-x64/8.0.10/microsoft.netcore.app.host.linux-x64.8.0.10.nupkg.sha512"
+    "/home/kauan/.nuget/packages/system.commandline/2.0.0-beta4.22272.1/system.commandline.2.0.0-beta4.22272.1.nupkg.sha512"
   ],
   "logs": []
 }
