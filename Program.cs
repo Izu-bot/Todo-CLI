@@ -8,8 +8,6 @@ public class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        DatabaseInitializer.Initialize();
-
         var rootCommand = new RootCommand("To-do list manager app");
 
         rootCommand.AddCommand(new CreateCommand());
