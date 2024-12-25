@@ -1,62 +1,53 @@
 using System.CommandLine;
-using System.CommandLine.Parsing;
-using System.Text.Json;
 using todo.src.model;
+using todo.src.services;
 using todo.src.utils;
 
 namespace todo.src.commands;
 
 public class ListCommand : Command
 {
-    public const string FilePath = "todos.json";
-
-    public ListCommand()
+    private readonly ITodoService _service;
+    public ListCommand(ITodoService service)
         : base("list", "List all taks")
     {
-        var idOption = new Option<int>(
-            name: "--id",
-            description: "An option to search by Ids"
+        _service = service;
+
+        var titleOptions = new Option<string>(
+            name: "--name",
+            description: "An option to search by names"
         );
-        idOption.AddAlias("-i");
+        titleOptions.AddAlias("-n");
 
-        AddOption(idOption);
+        AddOption(titleOptions);
 
-        this.SetHandler((id) =>
+        this.SetHandler((name) =>
         {
-            if (!File.Exists("todos.json"))
+            if (String.IsNullOrWhiteSpace(name))
             {
-                ColorConsole.HighlightMessage
-                (
-                    "Error: The file 'todos.json' could not be found",
-                    ConsoleColor.Red
-                );
-                Environment.Exit(1);
-                return;
-            }
+                var todo = _service.GetAll(); 
 
-            string jsonString = File.ReadAllText(FilePath);
-            List<Todo> todos = JsonSerializer.Deserialize<List<Todo>>(jsonString)!;
-
-            if (todos.Count == 0)
-            {
-                ColorConsole.HighlightMessage("No tasks found", ConsoleColor.Yellow);
+                foreach (Todo item in todo)
+                {
+                    ColorConsole.HighlightMessage(
+                        $"ID: {item.Id}\tTitle: {item.Title}\tStatus: {item.IsDone}\tCreated at: {item.CreatedAt}",
+                        ConsoleColor.Blue
+                    );
+                }
             }
             else
             {
-                foreach (var todo in todos)
+                var todo = _service.GetTitle(name);
+                
+                foreach (Todo item in todo!)
                 {
-                    string status = todo.IsDone ? "Completed" : "Not completed";
-
-                    if (todo.Id == id || id == 0)
-                    {
-                        ColorConsole.HighlightMessage(
-                        $"ID: {todo.Id}, Title: {todo.Title}, Status: {status}, created at: {todo.CreatedAt:d}",
+                    ColorConsole.HighlightMessage(
+                        $"ID: {item.Id}\tTitle: {item.Title}\tStatus: {item.IsDone}\tCreated at: {item.CreatedAt}",
                         ConsoleColor.Blue
-                        );
-                    }
+                    );
                 }
             }
-        }, idOption);
 
+        }, titleOptions);
     }
 }
