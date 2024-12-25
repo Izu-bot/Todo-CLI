@@ -1,27 +1,28 @@
 ﻿using System.CommandLine;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SQLitePCL;
 using todo.src.model;
+using todo.src.services;
 using todo.src.utils;
 
 namespace todo.src.commands;
 
 public class UpdateCommand : Command
 {
-    private static readonly JsonSerializerOptions s_writeOptions = new()
-    {
-        WriteIndented = true
-    };
-    public const string FilePath = "todos.json";
-    public UpdateCommand()
+    private readonly ITodoService _service;
+    public UpdateCommand(ITodoService service)
         : base("update", "Update a task")
     {
+        _service = service;
+
         var idArgument = new Argument<int>("id", "The ID of the task you want to change");
 
         var titleOption = new Option<string>(
             name: "--title",
             description: "Can be used to change the task title"
             );
+
         titleOption.AddAlias("-t");
         this.AddOption(titleOption);
 
@@ -39,77 +40,23 @@ public class UpdateCommand : Command
 
         this.SetHandler((int id, string title, string done) =>
         {
-            // Verifica se não existe o arquivo 'todos.json'
-            if (!File.Exists(FilePath))
-            {
-                ColorConsole.HighlightMessage(
-                    "Error: The file 'todos.json' could not be found",
-                    ConsoleColor.Red
-                    );
-                Environment.Exit(1);
-                return;
-            }
-
-            // Deserializa o json para C#
-            var todosJson = File.ReadAllText(FilePath);
-            var todos = JsonSerializer.Deserialize<List<Todo>>(todosJson);
-
-            // Verifica se contém algo na lista de todos
-            if (todos == null)
-            {
-                ColorConsole.HighlightMessage(
-                    "Error: No task to update",
-                    ConsoleColor.Red
-                );
-                return;
-            }
-
             // Procura a tarefa pelo ID
-            var todoToUpdate = todos.FirstOrDefault(t => t.Id == id);
-            if (todoToUpdate == null)
-            {
-                ColorConsole.HighlightMessage(
-                    $"Error: The task with id:{id} was not found",
-                    ConsoleColor.Red
-                );
-                return;
-            }
+            var searchTodo = _service.GetId(id) ?? throw new InvalidOperationException($"Task with ID {id} not found.");
 
-            // Atualiza a propriedade done e converte done para um boolean no json
-            if (!string.IsNullOrEmpty(done))
-            {
-                switch (done.ToLower())
-                {
-                    case "yes":
-                    case "y":
-                        todoToUpdate.IsDone = true;
-                        break;
+            // Atualizar a propriedade done e converdone para um booleano
+            if (!string.IsNullOrWhiteSpace(done)) searchTodo!.IsDone = done.Equals("true", StringComparison.OrdinalIgnoreCase);
 
-                    case "no":
-                    case "n":
-                        todoToUpdate.IsDone = false;
-                        break;
+            // Atualiza title se não for vazio
+            if (!string.IsNullOrWhiteSpace(title)) searchTodo!.Title = title;
 
-                    default:
-                        ColorConsole.HighlightMessage(
-                            "Error: The value of the --done flag must be 'yes', 'no', 'y', or 'n'",
-                            ConsoleColor.Red
-                        );
-                        return;
-                }
-            }
+            // Chama o serviço para persistir no banco
+            _service.UpdateTodo(searchTodo!);
 
-            // Verifica se o title está vazio, caso não, atualiza no json
-            if (!string.IsNullOrEmpty(title))
-            {
-                todoToUpdate.Title = title;
-            }
+            ColorConsole.HighlightMessage(
+                $"Task successfully updated!\nNew Task: ID: {searchTodo.Id} Title: {searchTodo.Title}, Done: {searchTodo.IsDone}, Created At: {searchTodo.CreatedAt}"
+                , ConsoleColor.Green
+            );
 
-            // Serializar para JSON
-            var updateTodosJson = JsonSerializer.Serialize(todos, s_writeOptions);
-            File.WriteAllText(FilePath, updateTodosJson);
-
-            ColorConsole.HighlightMessage("Task successfully updated!", ConsoleColor.Green);
         }, idArgument, titleOption, doneOption);
     }
 }
