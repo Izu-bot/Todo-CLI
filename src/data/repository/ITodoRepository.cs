@@ -1,6 +1,6 @@
 ﻿using todo.src.model;
 
-namespace todo.data.repository;
+namespace todo.src.data.repository;
 
 public interface ITodoRepository
 {

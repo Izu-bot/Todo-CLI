@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# Migrations
+/Migrations/
+
 # Changelog file
 CHANGELOG.MD
 

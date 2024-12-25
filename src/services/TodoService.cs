@@ -1,10 +1,9 @@
-﻿using todo.data.repository;
+﻿using todo.src.data.repository;
 using todo.src.model;
-using todo.src.services;
 
 namespace todo.src.services;
 
-public class TodoService(TodoRepository repository) : ITodoService
+public class TodoService(ITodoRepository repository) : ITodoService
 {
     private readonly ITodoRepository _repository = repository;
 
