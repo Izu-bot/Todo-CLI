@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# Database
+todo.db
+
 # Migrations
 /Migrations/
 
