@@ -39,7 +39,7 @@ public class ListCommand : Command
             {
                 var todo = _service.GetTitle(name);
                 
-                foreach (Todo item in todo)
+                foreach (Todo item in todo!)
                 {
                     ColorConsole.HighlightMessage(
                         $"ID: {item.Id}\tTitle: {item.Title}\tStatus: {item.IsDone}\tCreated at: {item.CreatedAt}",
