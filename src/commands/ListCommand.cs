@@ -23,16 +23,22 @@ public class ListCommand : Command
 
         this.SetHandler((name) =>
         {
+
+            Console.WriteLine("{0, -5} {1, -25} {2, -10} {3, -15}", "Id", "Title", "Done", "Created At");
+            Console.WriteLine(new string('-', 55));
+            
             if (String.IsNullOrWhiteSpace(name))
             {
                 var todo = _service.GetAll(); 
-
+                
                 foreach (Todo item in todo)
                 {
+                    // Muda a logica como aparece o valor bool
+                    var teste = item.IsDone ? "Concluido" : "Pendente";
+                    
+                    // Formata a saida no console
                     ColorConsole.HighlightMessage(
-                        $"ID: {item.Id}\tTitle: {item.Title}\tStatus: {item.IsDone}\tCreated at: {item.CreatedAt}",
-                        ConsoleColor.Blue
-                    );
+                        $"{item.Id, -5} {item.Title, -25} {teste, -10} {item.CreatedAt.ToString("d"), -15}", ConsoleColor.Blue);
                 }
             }
             else
@@ -41,10 +47,12 @@ public class ListCommand : Command
                 
                 foreach (Todo item in todo!)
                 {
+                    // Muda a logica como aparece o valor bool
+                    var teste = item.IsDone ? "Concluido" : "Pendente";
+                    
+                    // Formata a saida no console
                     ColorConsole.HighlightMessage(
-                        $"ID: {item.Id}\tTitle: {item.Title}\tStatus: {item.IsDone}\tCreated at: {item.CreatedAt}",
-                        ConsoleColor.Blue
-                    );
+                        $"{item.Id, -5} {item.Title, -25} {teste, -10} {item.CreatedAt.ToString("d"), -15}", ConsoleColor.Blue);
                 }
             }
 
