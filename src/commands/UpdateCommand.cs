@@ -41,7 +41,8 @@ public class UpdateCommand : Command
         this.SetHandler((int id, string title, string done) =>
         {
             // Procura a tarefa pelo ID
-            var searchTodo = _service.GetId(id) ?? throw new InvalidOperationException($"Task with ID {id} not found.");
+            // var searchTodo = _service.GetId(id) ?? throw new InvalidOperationException($"Task with ID {id} not found.");
+            var (error, searchTodo) = _service.GetId(id);
 
             // Normaliza a entrada tirando os espaços
             string normalizedInput = done.Trim();
@@ -65,7 +66,7 @@ public class UpdateCommand : Command
                     ColorConsole.HighlightMessage("Enter the possible entries “y” or “n”.", ConsoleColor.Red);
                     break;
             }
-            string isCompleted  = searchTodo.IsDone ? "Completed": "Pending";
+            string isCompleted  = searchTodo!.IsDone ? "Completed": "Pending";
 
             // Atualiza title se não for vazio
             if (!string.IsNullOrWhiteSpace(title)) searchTodo!.Title = title;

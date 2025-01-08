@@ -1,4 +1,5 @@
 using System.CommandLine;
+using todo.ErrorManagement;
 using todo.src.model;
 using todo.src.services;
 using todo.src.utils;
@@ -19,43 +20,63 @@ public class ListCommand : Command
         );
         titleOptions.AddAlias("-n");
 
-        AddOption(titleOptions);
+        var idOptions = new Option<int>(
+            name: "--id",
+            description: "An option to seach by id's"
+        );
+        idOptions.AddAlias("-i");
 
-        this.SetHandler((name) =>
+        AddOption(titleOptions);
+        AddOption(idOptions);
+
+        this.SetHandler((name, id) =>
         {
 
             Console.WriteLine("{0, -5} {1, -25} {2, -10} {3, -15}", "Id", "Title", "Done", "Created At");
             Console.WriteLine(new string('-', 55));
             
-            if (String.IsNullOrWhiteSpace(name))
+            if(String.IsNullOrWhiteSpace(name))
             {
-                var todo = _service.GetAll(); 
-                
-                foreach (Todo item in todo)
+                if(id != 0)
                 {
-                    // Muda a logica como aparece o valor bool
-                    var teste = item.IsDone ? "Concluido" : "Pendente";
-                    
-                    // Formata a saida no console
-                    ColorConsole.HighlightMessage(
-                        $"{item.Id, -5} {item.Title, -25} {teste, -10} {item.CreatedAt:d, -15}", ConsoleColor.Blue);
+                    var (error, todo) = _service.GetId(id);
+                    if (error != OperationsError.Success) Console.WriteLine("Falhou");
+
+                    if (todo != null) ViewListDetail(todo!);
+                }
+                else
+                {
+                    var todos = _service.GetAll();
+
+                    foreach(Todo item in todos)
+                    {
+                        ViewListDetail(item);
+                    }
                 }
             }
             else
             {
-                var todo = _service.GetTitle(name);
+                var (error, todos) = _service.GetTitle(name);
                 
-                foreach (Todo item in todo!)
+                if (error != OperationsError.Success) Console.WriteLine("Erro");
+
+                foreach (Todo item in todos!)
                 {
-                    // Muda a logica como aparece o valor bool
-                    var done = item.IsDone ? "Completed" : "Pending";
-                    
-                    // Formata a saida no console
-                    ColorConsole.HighlightMessage(
-                        $"{item.Id, -5} {item.Title, -25} {done, -10} {item.CreatedAt:d, -15}", ConsoleColor.Blue);
+                    ViewListDetail(item);
                 }
             }
 
-        }, titleOptions);
+        }, titleOptions, idOptions);
+    }
+
+    // Método para exibir a lista de todos
+    static void ViewListDetail(Todo item)
+    {
+        // Determinar o status como texto
+        var status = item.IsDone ? "Completed" : "Pending";
+
+        // Formata e exibe a mensagem no console
+        ColorConsole.HighlightMessage(
+            $"{item.Id,-5} {item.Title,-25} {status,-10} {item.CreatedAt.ToString("dd/MM/yyyy"), -15} ", ConsoleColor.Blue);
     }
 }
