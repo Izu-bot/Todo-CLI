@@ -43,17 +43,39 @@ public class UpdateCommand : Command
             // Procura a tarefa pelo ID
             var searchTodo = _service.GetId(id) ?? throw new InvalidOperationException($"Task with ID {id} not found.");
 
-            // Atualizar a propriedade done e converdone para um booleano
-            if (!string.IsNullOrWhiteSpace(done)) searchTodo!.IsDone = done.Equals("true", StringComparison.OrdinalIgnoreCase);
+            // Normaliza a entrada tirando os espaços
+            string normalizedInput = done.Trim();
+            
+            // Switch case para verificar possiveis entradas permitidas
+            switch (normalizedInput.ToLower())
+            {
+                case "y":
+                    searchTodo!.IsDone = true;
+                    break;
+                case "yes":
+                    searchTodo!.IsDone = true;
+                    break;
+                case "n":
+                    searchTodo!.IsDone = false;
+                    break;
+                case "not":
+                    searchTodo!.IsDone = false;
+                    break;
+                default:
+                    ColorConsole.HighlightMessage("Enter the possible entries “y” or “n”.", ConsoleColor.Red);
+                    break;
+            }
+            string isCompleted  = searchTodo.IsDone ? "Completed": "Pending";
 
             // Atualiza title se não for vazio
             if (!string.IsNullOrWhiteSpace(title)) searchTodo!.Title = title;
 
             // Chama o serviço para persistir no banco
             _service.UpdateTodo(searchTodo!);
+            searchTodo.CreatedAt = DateTime.Now;
 
             ColorConsole.HighlightMessage(
-                $"Task successfully updated!\nNew Task: ID: {searchTodo.Id} Title: {searchTodo.Title}, Done: {searchTodo.IsDone}, Created At: {searchTodo.CreatedAt}"
+                $"Task successfully updated!\nUpdate Task: ID: {searchTodo.Id} Title: {searchTodo.Title}, Done: {isCompleted}, Created At: {searchTodo.CreatedAt:d}"
                 , ConsoleColor.Green
             );
 

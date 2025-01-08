@@ -44,9 +44,8 @@ public class CreateCommand : Command
                 var newTodo = new Todo { Title = formatter };
 
                 _service.AddTodo(newTodo); // Adicionar uma nova tarefa
-                ColorConsole.HighlightMessage($"Title: {formatter}, Date: {newTodo.CreatedAt:d}", ConsoleColor.Green);
+                ColorConsole.HighlightMessage($"Add new task\nTitle: {formatter}, Date: {newTodo.CreatedAt:d}", ConsoleColor.Green);
             }
-            // Console.WriteLine("✅ Adicionado");
         }, titleArgument);
     }
 }
