@@ -38,7 +38,7 @@ public class ListCommand : Command
                     
                     // Formata a saida no console
                     ColorConsole.HighlightMessage(
-                        $"{item.Id, -5} {item.Title, -25} {teste, -10} {item.CreatedAt.ToString("d"), -15}", ConsoleColor.Blue);
+                        $"{item.Id, -5} {item.Title, -25} {teste, -10} {item.CreatedAt:d, -15}", ConsoleColor.Blue);
                 }
             }
             else
@@ -48,11 +48,11 @@ public class ListCommand : Command
                 foreach (Todo item in todo!)
                 {
                     // Muda a logica como aparece o valor bool
-                    var teste = item.IsDone ? "Concluido" : "Pendente";
+                    var done = item.IsDone ? "Completed" : "Pending";
                     
                     // Formata a saida no console
                     ColorConsole.HighlightMessage(
-                        $"{item.Id, -5} {item.Title, -25} {teste, -10} {item.CreatedAt.ToString("d"), -15}", ConsoleColor.Blue);
+                        $"{item.Id, -5} {item.Title, -25} {done, -10} {item.CreatedAt:d, -15}", ConsoleColor.Blue);
                 }
             }
 
