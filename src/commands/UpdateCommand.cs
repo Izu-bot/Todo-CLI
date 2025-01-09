@@ -1,8 +1,5 @@
 ﻿using System.CommandLine;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using SQLitePCL;
-using todo.src.model;
+using todo.ErrorManagement;
 using todo.src.services;
 using todo.src.utils;
 
@@ -21,7 +18,7 @@ public class UpdateCommand : Command
         var titleOption = new Option<string>(
             name: "--title",
             description: "Can be used to change the task title"
-            );
+        );
 
         titleOption.AddAlias("-t");
         this.AddOption(titleOption);
@@ -29,10 +26,8 @@ public class UpdateCommand : Command
         var doneOption = new Option<string>(
             name: "--done",
             description: "Can be used to mark a task as completed"
-        )
-        {
-            IsRequired = true
-        };
+        );
+
         doneOption.AddAlias("-d");
         this.AddOption(doneOption);
 
@@ -42,11 +37,14 @@ public class UpdateCommand : Command
         {
             // Procura a tarefa pelo ID
             // var searchTodo = _service.GetId(id) ?? throw new InvalidOperationException($"Task with ID {id} not found.");
-            var (error, searchTodo) = _service.GetId(id);
+            var (status, searchTodo) = _service.GetId(id);
+
+            if (searchTodo == null)
+                ColorConsole.HighlightMessage("Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
 
             // Normaliza a entrada tirando os espaços
             string normalizedInput = done.Trim();
-            
+
             // Switch case para verificar possiveis entradas permitidas
             switch (normalizedInput.ToLower())
             {
@@ -64,21 +62,22 @@ public class UpdateCommand : Command
                     break;
                 default:
                     ColorConsole.HighlightMessage("Enter the possible entries “y” or “n”.", ConsoleColor.Red);
-                    break;
+                    return;
             }
-            string isCompleted  = searchTodo!.IsDone ? "Completed": "Pending";
+            string isCompleted = searchTodo.IsDone ? "Completed" : "Pending";
 
             // Atualiza title se não for vazio
-            if (!string.IsNullOrWhiteSpace(title)) searchTodo!.Title = title;
+            if (!string.IsNullOrWhiteSpace(title)) searchTodo.Title = title;
 
             // Chama o serviço para persistir no banco
-            _service.UpdateTodo(searchTodo!);
+            _service.UpdateTodo(searchTodo);
             searchTodo.CreatedAt = DateTime.Now;
 
             ColorConsole.HighlightMessage(
                 $"Task successfully updated!\nUpdate Task: ID: {searchTodo.Id} Title: {searchTodo.Title}, Done: {isCompleted}, Created At: {searchTodo.CreatedAt:d}"
                 , ConsoleColor.Green
             );
+
 
         }, idArgument, titleOption, doneOption);
     }
