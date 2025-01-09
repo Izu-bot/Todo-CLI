@@ -25,6 +25,14 @@ public class ListCommand : Command
             name: "--id",
             description: "An option to seach by id's"
         );
+
+        idOptions.AddValidator(result =>
+        {
+            var value = result.Tokens.SingleOrDefault()?.Value;
+            if (value is not null && !int.TryParse(value, out _))
+                result.ErrorMessage = $"Invalid entry. The ID '{value}' provided is not valid.";
+        });
+        
         idOptions.AddAlias("-i");
 
         AddOption(titleOptions);
@@ -35,35 +43,33 @@ public class ListCommand : Command
 
             Console.WriteLine("{0, -5} {1, -25} {2, -10} {3, -15}", "Id", "Title", "Done", "Created At");
             Console.WriteLine(new string('-', 55));
-            
-            if(String.IsNullOrWhiteSpace(name))
+
+            if (String.IsNullOrWhiteSpace(name))
             {
-                if(id != 0)
+                if (id != 0)
                 {
                     var (status, todo) = _service.GetId(id);
+
                     if (status.IsSuccess() && todo != null) ViewListDetail(todo);
-                    else ColorConsole.HighlightMessage($"Error code: {(int) status}\nIndicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);  
+                    else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
+                    
                 }
                 else
                 {
                     var todos = _service.GetAll();
 
-                    foreach(Todo item in todos)
-                    {
-                        ViewListDetail(item);
-                    }
+                    foreach (Todo item in todos) ViewListDetail(item);
                 }
             }
             else
             {
                 var (status, todos) = _service.GetTitle(name);
-                
-                if (status != OperationsStatus.Success) Console.WriteLine("Erro");
 
-                foreach (Todo item in todos!)
+                if (status.IsSuccess())
                 {
-                    ViewListDetail(item);
+                    foreach (Todo item in todos) ViewListDetail(item);
                 }
+                else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
             }
 
         }, titleOptions, idOptions);
@@ -77,6 +83,6 @@ public class ListCommand : Command
 
         // Formata e exibe a mensagem no console
         ColorConsole.HighlightMessage(
-            $"{item.Id,-5} {item.Title,-25} {status,-10} {item.CreatedAt.ToString("dd/MM/yyyy"), -15} ", ConsoleColor.Blue);
+            $"{item.Id,-5} {item.Title,-25} {status,-10} {item.CreatedAt.ToString("dd/MM/yyyy"),-15} ", ConsoleColor.Blue);
     }
 }
