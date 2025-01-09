@@ -8,56 +8,56 @@ public class TodoService(ITodoRepository repository) : ITodoService
 {
     private readonly ITodoRepository _repository = repository;
 
-    public OperationsError AddTodo(Todo todo)
+    public OperationsStatus AddTodo(Todo todo)
     {
-        if (todo == null) return OperationsError.InvalidEntry;
+        if (todo == null) return OperationsStatus.InvalidEntry;
 
         _repository.AddTodo(todo);
-        return OperationsError.Success;
+        return OperationsStatus.Success;
     }
 
-    public OperationsError DeleteTodo(int id)
+    public OperationsStatus DeleteTodo(int id)
     {
         var todo = _repository.GetId(id);
 
-        if (todo == null) return OperationsError.NotFound;
+        if (todo == null) return OperationsStatus.NotFound;
 
         _repository.DeleteTodo(todo);
-        return OperationsError.Success;
+        return OperationsStatus.Success;
     }
 
     public IQueryable<Todo> GetAll() => _repository.GetAll();
 
-    public (OperationsError, Todo?) GetId(int id)
+    public (OperationsStatus, Todo?) GetId(int id)
     {
-        if (id <= 0) return (OperationsError.InvalidEntry, null);
+        if (id <= 0) return (OperationsStatus.InvalidEntry, null);
 
         var todo = _repository.GetId(id);
         
-        if(todo == null) return (OperationsError.NotFound, null);
+        if(todo == null) return (OperationsStatus.NotFound, null);
 
-        return (OperationsError.Success, todo);
+        return (OperationsStatus.Success, todo);
     }
 
-    public (OperationsError, IQueryable<Todo>) GetTitle(string title)
+    public (OperationsStatus, IQueryable<Todo>) GetTitle(string title)
     {
         // Retorna uma coleção vazia
-        if (String.IsNullOrWhiteSpace(title)) return (OperationsError.InvalidEntry, Enumerable.Empty<Todo>().AsQueryable());
+        if (String.IsNullOrWhiteSpace(title)) return (OperationsStatus.InvalidEntry, Enumerable.Empty<Todo>().AsQueryable());
 
         var todo = _repository.GetTitle(title);
 
-        return todo.Any() ? (OperationsError.Success, todo) : (OperationsError.NotFound, Enumerable.Empty<Todo>().AsQueryable());
+        return todo.Any() ? (OperationsStatus.Success, todo) : (OperationsStatus.NotFound, Enumerable.Empty<Todo>().AsQueryable());
     }
 
-    public OperationsError UpdateTodo(Todo todo)
+    public OperationsStatus UpdateTodo(Todo todo)
     {
-        if (todo == null) return OperationsError.InvalidEntry;
+        if (todo == null) return OperationsStatus.InvalidEntry;
 
         var existingTodo = _repository.GetId(todo.Id);
-        if (existingTodo == null) return OperationsError.NotFound;
+        if (existingTodo == null) return OperationsStatus.NotFound;
 
         _repository.UpdateTodo(todo);
 
-        return OperationsError.Success;
+        return OperationsStatus.Success;
     }
 }

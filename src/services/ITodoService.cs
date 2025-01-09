@@ -6,9 +6,9 @@ namespace todo.src.services;
 public interface ITodoService
 {
     IQueryable<Todo> GetAll();
-    (OperationsError, IQueryable<Todo>) GetTitle(string title);
-    (OperationsError, Todo?) GetId(int id);
-    OperationsError AddTodo(Todo todo);
-    OperationsError UpdateTodo(Todo todo);
-    OperationsError DeleteTodo(int id);
+    (OperationsStatus, IQueryable<Todo>) GetTitle(string title);
+    (OperationsStatus, Todo?) GetId(int id);
+    OperationsStatus AddTodo(Todo todo);
+    OperationsStatus UpdateTodo(Todo todo);
+    OperationsStatus DeleteTodo(int id);
 }

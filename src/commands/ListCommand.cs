@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.Drawing;
 using todo.ErrorManagement;
 using todo.src.model;
 using todo.src.services;
@@ -39,10 +40,9 @@ public class ListCommand : Command
             {
                 if(id != 0)
                 {
-                    var (error, todo) = _service.GetId(id);
-                    if (error != OperationsError.Success) Console.WriteLine("Falhou");
-
-                    if (todo != null) ViewListDetail(todo!);
+                    var (status, todo) = _service.GetId(id);
+                    if (status.IsSuccess() && todo != null) ViewListDetail(todo);
+                    else ColorConsole.HighlightMessage($"Error code: {(int) status}\nIndicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);  
                 }
                 else
                 {
@@ -56,9 +56,9 @@ public class ListCommand : Command
             }
             else
             {
-                var (error, todos) = _service.GetTitle(name);
+                var (status, todos) = _service.GetTitle(name);
                 
-                if (error != OperationsError.Success) Console.WriteLine("Erro");
+                if (status != OperationsStatus.Success) Console.WriteLine("Erro");
 
                 foreach (Todo item in todos!)
                 {
