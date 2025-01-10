@@ -1,8 +1,5 @@
 ﻿using System.CommandLine;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using SQLitePCL;
-using todo.src.model;
+using todo.ErrorManagement;
 using todo.src.services;
 using todo.src.utils;
 
@@ -21,7 +18,7 @@ public class UpdateCommand : Command
         var titleOption = new Option<string>(
             name: "--title",
             description: "Can be used to change the task title"
-            );
+        );
 
         titleOption.AddAlias("-t");
         this.AddOption(titleOption);
@@ -29,10 +26,8 @@ public class UpdateCommand : Command
         var doneOption = new Option<string>(
             name: "--done",
             description: "Can be used to mark a task as completed"
-        )
-        {
-            IsRequired = true
-        };
+        );
+
         doneOption.AddAlias("-d");
         this.AddOption(doneOption);
 
@@ -41,43 +36,55 @@ public class UpdateCommand : Command
         this.SetHandler((int id, string title, string done) =>
         {
             // Procura a tarefa pelo ID
-            var searchTodo = _service.GetId(id) ?? throw new InvalidOperationException($"Task with ID {id} not found.");
+            // var searchTodo = _service.GetId(id) ?? throw new InvalidOperationException($"Task with ID {id} not found.");
+            var (_, searchTodo) = _service.GetId(id);
 
-            // Normaliza a entrada tirando os espaços
-            string normalizedInput = done.Trim();
-            
-            // Switch case para verificar possiveis entradas permitidas
-            switch (normalizedInput.ToLower())
+            if (searchTodo == null)
             {
-                case "y":
-                    searchTodo!.IsDone = true;
-                    break;
-                case "yes":
-                    searchTodo!.IsDone = true;
-                    break;
-                case "n":
-                    searchTodo!.IsDone = false;
-                    break;
-                case "not":
-                    searchTodo!.IsDone = false;
-                    break;
-                default:
-                    ColorConsole.HighlightMessage("Enter the possible entries “y” or “n”.", ConsoleColor.Red);
-                    break;
+                ColorConsole.HighlightMessage("Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
+                return;
             }
-            string isCompleted  = searchTodo.IsDone ? "Completed": "Pending";
 
             // Atualiza title se não for vazio
-            if (!string.IsNullOrWhiteSpace(title)) searchTodo!.Title = title;
+            if (!string.IsNullOrWhiteSpace(title)) searchTodo.Title = title.Trim();
+
+            if (!string.IsNullOrWhiteSpace(done))
+            {
+                // Normaliza a entrada tirando os espaços
+                string normalizedInput = done.Trim();
+
+                // Switch case para verificar possiveis entradas permitidas
+                switch (normalizedInput.ToLower())
+                {
+                    case "y":
+                        searchTodo.IsDone = true;
+                        break;
+                    case "yes":
+                        searchTodo.IsDone = true;
+                        break;
+                    case "n":
+                        searchTodo.IsDone = false;
+                        break;
+                    case "not":
+                        searchTodo.IsDone = false;
+                        break;
+                    default:
+                        ColorConsole.HighlightMessage("Enter the possible entries “y” or “n”.", ConsoleColor.Red);
+                        return;
+                }
+            }
+            string isCompleted = searchTodo.IsDone ? "Completed" : "Pending";
 
             // Chama o serviço para persistir no banco
-            _service.UpdateTodo(searchTodo!);
-            searchTodo.CreatedAt = DateTime.Now;
+            var status = _service.UpdateTodo(searchTodo);
 
-            ColorConsole.HighlightMessage(
-                $"Task successfully updated!\nUpdate Task: ID: {searchTodo.Id} Title: {searchTodo.Title}, Done: {isCompleted}, Created At: {searchTodo.CreatedAt:d}"
-                , ConsoleColor.Green
-            );
+            if (status.IsSuccess())
+            {
+                ColorConsole.HighlightMessage(
+                    $"Task successfully updated!\nUpdate Task: ID: {searchTodo.Id} Title: {searchTodo.Title}, Done: {isCompleted}, Created At: {searchTodo.CreatedAt:d}, Last Update: {DateTime.Now:d}"
+                    , ConsoleColor.Green
+                );
+            }
 
         }, idArgument, titleOption, doneOption);
     }
