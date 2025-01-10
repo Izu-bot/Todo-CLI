@@ -1,13 +1,14 @@
-﻿using todo.src.model;
+﻿using todo.ErrorManagement;
+using todo.src.model;
 
 namespace todo.src.services;
 
 public interface ITodoService
 {
     IQueryable<Todo> GetAll();
-    IQueryable? GetTitle(string title);
-    Todo? GetId(int id);
-    void AddTodo(Todo todo);
-    void UpdateTodo(Todo todo);
-    void DeleteTodo(int id);
+    (OperationsStatus, IQueryable<Todo>) GetTitle(string title);
+    (OperationsStatus, Todo?) GetId(int id);
+    OperationsStatus AddTodo(Todo todo);
+    OperationsStatus UpdateTodo(Todo todo);
+    OperationsStatus DeleteTodo(int id);
 }

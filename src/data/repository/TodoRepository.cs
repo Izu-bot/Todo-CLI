@@ -20,9 +20,9 @@ public class TodoRepository(ApplicationDbContext context) : ITodoRepository
 
     public IQueryable<Todo> GetAll() => _context.Todos.AsQueryable();
 
-    public Todo? GetId(int id) => _context.Todos.Single(i => i.Id == id);
+    public Todo? GetId(int id) => _context.Todos.FirstOrDefault(i => i.Id == id);
 
-    public IQueryable? GetTitle(string title) => _context.Todos.Where(n => n.Title == title).AsNoTracking();
+    public IQueryable<Todo> GetTitle(string title) => _context.Todos.Where(n => n.Title!.ToLower() == title.ToLower()).AsNoTracking();
 
     public void UpdateTodo(Todo todo)
     {
