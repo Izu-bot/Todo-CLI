@@ -1,62 +1,88 @@
 using System.CommandLine;
-using System.CommandLine.Parsing;
-using System.Text.Json;
+using System.Drawing;
+using todo.ErrorManagement;
 using todo.src.model;
+using todo.src.services;
 using todo.src.utils;
 
 namespace todo.src.commands;
 
 public class ListCommand : Command
 {
-    public const string FilePath = "todos.json";
-
-    public ListCommand()
+    private readonly ITodoService _service;
+    public ListCommand(ITodoService service)
         : base("list", "List all taks")
     {
-        var idOption = new Option<int>(
-            name: "--id",
-            description: "An option to search by Ids"
+        _service = service;
+
+        var titleOptions = new Option<string>(
+            name: "--name",
+            description: "An option to search by names"
         );
-        idOption.AddAlias("-i");
+        titleOptions.AddAlias("-n");
 
-        AddOption(idOption);
+        var idOptions = new Option<int>(
+            name: "--id",
+            description: "An option to seach by id's"
+        );
 
-        this.SetHandler((id) =>
+        idOptions.AddValidator(result =>
         {
-            if (!File.Exists("todos.json"))
-            {
-                ColorConsole.HighlightMessage
-                (
-                    "Error: The file 'todos.json' could not be found",
-                    ConsoleColor.Red
-                );
-                Environment.Exit(1);
-                return;
-            }
+            var value = result.Tokens.SingleOrDefault()?.Value;
+            if (value is not null && !int.TryParse(value, out _))
+                result.ErrorMessage = $"Invalid entry. The ID '{value}' provided is not valid.";
+        });
+        
+        idOptions.AddAlias("-i");
 
-            string jsonString = File.ReadAllText(FilePath);
-            List<Todo> todos = JsonSerializer.Deserialize<List<Todo>>(jsonString)!;
+        AddOption(titleOptions);
+        AddOption(idOptions);
 
-            if (todos.Count == 0)
+        this.SetHandler((name, id) =>
+        {
+
+            Console.WriteLine("{0, -5} {1, -25} {2, -10} {3, -15}", "Id", "Title", "Done", "Created At");
+            Console.WriteLine(new string('-', 55));
+
+            if (String.IsNullOrWhiteSpace(name))
             {
-                ColorConsole.HighlightMessage("No tasks found", ConsoleColor.Yellow);
+                if (id != 0)
+                {
+                    var (status, todo) = _service.GetId(id);
+
+                    if (status.IsSuccess() && todo != null) ViewListDetail(todo);
+                    else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
+                    
+                }
+                else
+                {
+                    var todos = _service.GetAll();
+
+                    foreach (Todo item in todos) ViewListDetail(item);
+                }
             }
             else
             {
-                foreach (var todo in todos)
+                var (status, todos) = _service.GetTitle(name);
+
+                if (status.IsSuccess())
                 {
-                    string status = todo.IsDone ? "Completed" : "Not completed";
-
-                    if (todo.Id == id || id == 0)
-                    {
-                        ColorConsole.HighlightMessage(
-                        $"ID: {todo.Id}, Title: {todo.Title}, Status: {status}, created at: {todo.CreatedAt:d}",
-                        ConsoleColor.Blue
-                        );
-                    }
+                    foreach (Todo item in todos) ViewListDetail(item);
                 }
+                else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
             }
-        }, idOption);
 
+        }, titleOptions, idOptions);
+    }
+
+    // Método para exibir a lista de todos
+    static void ViewListDetail(Todo item)
+    {
+        // Determinar o status como texto
+        var status = item.IsDone ? "Completed" : "Pending";
+
+        // Formata e exibe a mensagem no console
+        ColorConsole.HighlightMessage(
+            $"{item.Id,-5} {item.Title,-25} {status,-10} {item.CreatedAt.ToString("dd/MM/yyyy"),-15} ", ConsoleColor.Blue);
     }
 }

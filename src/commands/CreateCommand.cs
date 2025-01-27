@@ -1,20 +1,18 @@
 using System.CommandLine;
-using System.Text.Json;
 using todo.src.model;
+using todo.src.services;
 using todo.src.utils;
 
 namespace todo.src.commands;
 
 public class CreateCommand : Command
 {
-    private static readonly JsonSerializerOptions s_writeOptions = new()
-    {
-        WriteIndented = true
-    };
-    public const string FilePath = "todos.json";
-    public CreateCommand()
+    private readonly ITodoService _service;
+    public CreateCommand(ITodoService service)
         : base("add", "Adds a new item to the list")
     {
+        _service = service;
+
         // Adiciona um novo argumento ao comando
         var titleArgument = new Argument<string[]>("title", "Task title")
         {
@@ -45,39 +43,9 @@ public class CreateCommand : Command
                 string formatter = title[0].ToString().ToUpper() + title[1..].ToLower().Replace(",", "");
                 var newTodo = new Todo { Title = formatter };
 
-                // Adiciona o novo todo ao arquivo JSON de Todos
-                AddTodoToFile(newTodo);
-                ColorConsole.HighlightMessage($"Title: {formatter}, Date: {newTodo.CreatedAt:d}", ConsoleColor.Green);
+                _service.AddTodo(newTodo); // Adicionar uma nova tarefa
+                ColorConsole.HighlightMessage($"Add new task\nTitle: {formatter}, Date: {newTodo.CreatedAt:d}", ConsoleColor.Green);
             }
-            // Console.WriteLine("✅ Adicionado");
         }, titleArgument);
-    }
-
-    private static void AddTodoToFile(Todo todo)
-    {
-        List<Todo> todos;
-
-        // Verifica se o arquivo existe e carrega o conteúdo existente
-        if (File.Exists(FilePath))
-        {
-            var jsonData = File.ReadAllText(FilePath);
-            // deserializa a string jsonData em uma lista de objetos Todo se retornar null garante uma lista vazia
-            todos = JsonSerializer.Deserialize<List<Todo>>(jsonData) ?? [];
-        }
-        else
-        {
-            todos = [];
-        }
-
-        // Define o próximo ID único (pega o maior ID existente e incrementa)
-        var nextId = todos.Count != 0 ? todos.Max(t => t.Id) + 1 : 1;
-        todo.Id = nextId;
-
-        // Adiciona o novo todo à lista
-        todos.Add(todo);
-
-        // Salva de volta no arquivo JSON
-        var updateJson = JsonSerializer.Serialize(todos, s_writeOptions);
-        File.WriteAllText(FilePath, updateJson);
     }
 }
