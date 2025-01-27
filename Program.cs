@@ -31,7 +31,8 @@ public class Program
     {
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseSqlite("Data Source=todo.db");
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "todo.db");
+            options.UseSqlite($"Data Source={path}");
         });
 
         // Registrar serviços
