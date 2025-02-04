@@ -1,5 +1,7 @@
 using System.CommandLine;
+using System.Drawing;
 using todo.src.services;
+using todo.src.utils;
 
 namespace todo.src.commands;
 
@@ -10,6 +12,7 @@ public class DeleteCommand : Command
         : base("remove", "Removes a task from the task list")
     {
         _service = service;
+        ConsoleKeyInfo cki;
 
         var idArgument = new Argument<int>("id", "Provide the task id"); // Cria um novo argumento
         idArgument.AddValidator(result =>
@@ -30,7 +33,29 @@ public class DeleteCommand : Command
 
         this.SetHandler((int id) =>
         {
-            _service.DeleteTodo(id);
+            ColorConsole.HighlightMessage("Are you sure you want to remove the task?\ny(yes) n(no)", ConsoleColor.Yellow);
+            
+            do
+            {
+                cki = Console.ReadKey(true);
+                if (cki.Key != ConsoleKey.Y && cki.Key != ConsoleKey.N)
+                {
+                    ColorConsole.HighlightMessage("\nInvalid input. Please press 'Y' (Yes) or 'N' (No).", ConsoleColor.Yellow);
+                }
+            }
+            while (cki.Key != ConsoleKey.Y && cki.Key != ConsoleKey.N);
+
+
+            if (cki.Key == ConsoleKey.Y)
+            {
+                ColorConsole.HighlightMessage($"\nTask {id} was removed successfully", ConsoleColor.Green);
+                _service.DeleteTodo(id);
+                ViewList.ViewListDetail([.. _service.GetAll()]);
+            }
+            else
+            {
+                ColorConsole.HighlightMessage($"Task {id} has not been removed", ConsoleColor.Yellow);
+            }
 
         }, idArgument);
     }
