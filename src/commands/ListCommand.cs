@@ -1,5 +1,7 @@
 using System.CommandLine;
 using System.Drawing;
+using System.Reflection;
+using Spectre.Console;
 using todo.ErrorManagement;
 using todo.src.model;
 using todo.src.services;
@@ -32,7 +34,7 @@ public class ListCommand : Command
             if (value is not null && !int.TryParse(value, out _))
                 result.ErrorMessage = $"Invalid entry. The ID '{value}' provided is not valid.";
         });
-        
+
         idOptions.AddAlias("-i");
 
         AddOption(titleOptions);
@@ -41,24 +43,21 @@ public class ListCommand : Command
         this.SetHandler((name, id) =>
         {
 
-            Console.WriteLine("{0, -5} {1, -25} {2, -10} {3, -15}", "Id", "Title", "Done", "Created At");
-            Console.WriteLine(new string('-', 55));
-
             if (String.IsNullOrWhiteSpace(name))
             {
                 if (id != 0)
                 {
                     var (status, todo) = _service.GetId(id);
 
-                    if (status.IsSuccess() && todo != null) ViewListDetail(todo);
+                    if (status.IsSuccess() && todo != null) ViewListDetail(new List<Todo> { todo });
                     else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
-                    
+
                 }
                 else
                 {
                     var todos = _service.GetAll();
 
-                    foreach (Todo item in todos) ViewListDetail(item);
+                    ViewListDetail([.. todos]);
                 }
             }
             else
@@ -67,7 +66,7 @@ public class ListCommand : Command
 
                 if (status.IsSuccess())
                 {
-                    foreach (Todo item in todos) ViewListDetail(item);
+                    ViewListDetail([.. todos]);
                 }
                 else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
             }
@@ -76,13 +75,40 @@ public class ListCommand : Command
     }
 
     // Método para exibir a lista de todos
-    static void ViewListDetail(Todo item)
+    static void ViewListDetail(List<Todo> items)
     {
         // Determinar o status como texto
-        var status = item.IsDone ? "Completed" : "Pending";
+        var table = new Table();
+        var columnNames = new Dictionary<string, string>
+        {
+            {"IsDone", "Done"},
+            {"CreatedAt", "Created At"}
+        };
 
-        // Formata e exibe a mensagem no console
-        ColorConsole.HighlightMessage(
-            $"{item.Id,-5} {item.Title,-25} {status,-10} {item.CreatedAt.ToString("dd/MM/yyyy"),-15} ", ConsoleColor.Blue);
+        PropertyInfo[] propertyInfos = typeof(Todo).GetProperties();
+
+        foreach (var propertys in propertyInfos)
+        {
+            string columnName = columnNames.TryGetValue(propertys.Name, out string? value) ? value : propertys.Name;
+            table.AddColumn(columnName);
+        }
+
+        foreach (var item in items)
+        {
+            table
+            .AddRow(propertyInfos.Select(p =>
+            {
+                var value = p.GetValue(item);
+
+                if (value is bool boolValue) return boolValue ? "Completed" : "Pending";
+
+                if (value is DateTime dateTime) return dateTime.ToString("d");
+
+                return value?.ToString() ?? "";
+            })
+            .ToArray());
+        }
+
+        AnsiConsole.Write(table);
     }
 }
