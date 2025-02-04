@@ -1,7 +1,4 @@
 using System.CommandLine;
-using System.Drawing;
-using System.Reflection;
-using Spectre.Console;
 using todo.ErrorManagement;
 using todo.src.model;
 using todo.src.services;
@@ -49,7 +46,7 @@ public class ListCommand : Command
                 {
                     var (status, todo) = _service.GetId(id);
 
-                    if (status.IsSuccess() && todo != null) ViewListDetail(new List<Todo> { todo });
+                    if (status.IsSuccess() && todo != null) ViewList.ViewListDetail(new List<Todo> { todo });
                     else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
 
                 }
@@ -57,7 +54,7 @@ public class ListCommand : Command
                 {
                     var todos = _service.GetAll();
 
-                    ViewListDetail([.. todos]);
+                    ViewList.ViewListDetail([.. todos]);
                 }
             }
             else
@@ -66,49 +63,11 @@ public class ListCommand : Command
 
                 if (status.IsSuccess())
                 {
-                    ViewListDetail([.. todos]);
+                    ViewList.ViewListDetail([.. todos]);
                 }
                 else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
             }
 
         }, titleOptions, idOptions);
-    }
-
-    // Método para exibir a lista de todos
-    static void ViewListDetail(List<Todo> items)
-    {
-        // Determinar o status como texto
-        var table = new Table();
-        var columnNames = new Dictionary<string, string>
-        {
-            {"IsDone", "Done"},
-            {"CreatedAt", "Created At"}
-        };
-
-        PropertyInfo[] propertyInfos = typeof(Todo).GetProperties();
-
-        foreach (var propertys in propertyInfos)
-        {
-            string columnName = columnNames.TryGetValue(propertys.Name, out string? value) ? value : propertys.Name;
-            table.AddColumn(columnName);
-        }
-
-        foreach (var item in items)
-        {
-            table
-            .AddRow(propertyInfos.Select(p =>
-            {
-                var value = p.GetValue(item);
-
-                if (value is bool boolValue) return boolValue ? "Completed" : "Pending";
-
-                if (value is DateTime dateTime) return dateTime.ToString("d");
-
-                return value?.ToString() ?? "";
-            })
-            .ToArray());
-        }
-
-        AnsiConsole.Write(table);
     }
 }
