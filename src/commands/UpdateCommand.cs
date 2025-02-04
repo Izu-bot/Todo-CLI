@@ -1,5 +1,7 @@
 ﻿using System.CommandLine;
+using System.Drawing;
 using todo.ErrorManagement;
+using todo.src.model;
 using todo.src.services;
 using todo.src.utils;
 
@@ -15,10 +17,14 @@ public class UpdateCommand : Command
 
         var idArgument = new Argument<int>("id", "The ID of the task you want to change");
 
-        var titleOption = new Option<string>(
+        var titleOption = new Option<string[]>(
             name: "--title",
             description: "Can be used to change the task title"
-        );
+        )
+        {
+            Arity = ArgumentArity.OneOrMore
+        };
+        titleOption.AllowMultipleArgumentsPerToken = true; // Permite múltiplas palavras sem aspas
 
         titleOption.AddAlias("-t");
         this.AddOption(titleOption);
@@ -33,11 +39,12 @@ public class UpdateCommand : Command
 
         this.AddArgument(idArgument);
 
-        this.SetHandler((int id, string title, string done) =>
+        this.SetHandler((int id, string[] title, string done) =>
         {
             // Procura a tarefa pelo ID
-            // var searchTodo = _service.GetId(id) ?? throw new InvalidOperationException($"Task with ID {id} not found.");
             var (_, searchTodo) = _service.GetId(id);
+
+            string titleFormat = string.Join(" ", title);
 
             if (searchTodo == null)
             {
@@ -46,7 +53,7 @@ public class UpdateCommand : Command
             }
 
             // Atualiza title se não for vazio
-            if (!string.IsNullOrWhiteSpace(title)) searchTodo.Title = title.Trim();
+            if (!string.IsNullOrWhiteSpace(titleFormat)) searchTodo.Title = titleFormat.Trim();
 
             if (!string.IsNullOrWhiteSpace(done))
             {
@@ -80,10 +87,8 @@ public class UpdateCommand : Command
 
             if (status.IsSuccess())
             {
-                ColorConsole.HighlightMessage(
-                    $"Task successfully updated!\nUpdate Task: ID: {searchTodo.Id} Title: {searchTodo.Title}, Done: {isCompleted}, Created At: {searchTodo.CreatedAt:d}, Last Update: {DateTime.Now:d}"
-                    , ConsoleColor.Green
-                );
+                ColorConsole.HighlightMessage("Task successfully updated!", ConsoleColor.Green);
+                ViewList.ViewListDetail([searchTodo]);
             }
 
         }, idArgument, titleOption, doneOption);
