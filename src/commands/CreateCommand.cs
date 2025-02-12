@@ -23,14 +23,14 @@ public class CreateCommand : Command
         AddArgument(titleArgument);
 
         // Diz o que o comando vai fazer ao ser chamado
-        this.SetHandler((string[] title) =>
+        this.SetHandler(async (string[] title) =>
         {
             string titleFormat = string.Join(" ", title);
 
             string formatter = titleFormat[0].ToString().ToUpper() + titleFormat[1..].ToLower().Replace(",", "");
             var newTodo = new Todo { Title = formatter };
 
-            _service.AddTodo(newTodo); // Adicionar uma nova tarefa
+            await _service.AddTodoAsync(newTodo); // Adicionar uma nova tarefa
             ColorConsole.HighlightMessage("Task successfully added! ", ConsoleColor.Green);
             ViewList.ViewListDetail([ newTodo ]);
 

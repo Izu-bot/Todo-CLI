@@ -44,11 +44,20 @@ public class TodoService(ITodoRepository repository) : ITodoService
 
     public async Task<List<Todo>> GetTitleAsync(string title)
     {
-        return await _repository.GetTitle(title).ToListAsync();
+        var task = await _repository.GetTitle(title).ToListAsync();
+
+        if (task != null)
+        {
+            return task;
+        }
+        else
+        {
+            throw new NullReferenceException("Todo not found");
+        }
     }
 
-    public Task UpdateTodoAsync(Todo todo)
+    public async Task UpdateTodoAsync(Todo todo)
     {
-        return _repository.UpdateTodoAsync(todo);
+        await _repository.UpdateTodoAsync(todo);
     }
 }

@@ -39,10 +39,10 @@ public class UpdateCommand : Command
 
         this.AddArgument(idArgument);
 
-        this.SetHandler((int id, string[] title, string done) =>
+        this.SetHandler(async (int id, string[] title, string done) =>
         {
             // Procura a tarefa pelo ID
-            var (_, searchTodo) = _service.GetId(id);
+            var searchTodo = await _service.GetIdAsync(id);
 
             string titleFormat = string.Join(" ", title);
 
@@ -83,9 +83,9 @@ public class UpdateCommand : Command
             string isCompleted = searchTodo.IsDone ? "Completed" : "Pending";
 
             // Chama o serviço para persistir no banco
-            var status = _service.UpdateTodo(searchTodo);
+            var status = _service.UpdateTodoAsync(searchTodo);
 
-            if (status.IsSuccess())
+            if (status != null)
             {
                 ColorConsole.HighlightMessage("Task successfully updated!", ConsoleColor.Green);
                 ViewList.ViewListDetail([searchTodo]);
