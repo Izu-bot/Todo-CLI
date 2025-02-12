@@ -14,11 +14,15 @@ public class ListCommand : Command
     {
         _service = service;
 
-        var titleOptions = new Option<string>(
+        var titleOptions = new Option<string[]>(
             name: "--title",
             description: "An option to search by names"
-        );
+        )
+        {
+            Arity = ArgumentArity.OneOrMore
+        };
         titleOptions.AddAlias("-t");
+        titleOptions.AllowMultipleArgumentsPerToken = true;
 
         var idOptions = new Option<int>(
             name: "--id",
@@ -37,9 +41,11 @@ public class ListCommand : Command
         AddOption(titleOptions);
         AddOption(idOptions);
 
-        this.SetHandler(async (name, id) =>
+        this.SetHandler(async (string[] name, int id) =>
         {
-            if (String.IsNullOrWhiteSpace(name))
+            var titleFormating = string.Join(" ", name);
+
+            if (String.IsNullOrWhiteSpace(titleFormating))
             {
                 if (id != 0)
                 {
@@ -57,7 +63,7 @@ public class ListCommand : Command
             }
             else
             {
-               var todos = await _service.GetTitleAsync(name);
+                var todos = await _service.GetTitleAsync(titleFormating);
 
                 if (todos != null)
                 {
