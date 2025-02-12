@@ -1,4 +1,4 @@
-﻿using todo.ErrorManagement;
+﻿using Microsoft.EntityFrameworkCore;
 using todo.src.data.repository;
 using todo.src.model;
 
@@ -8,56 +8,47 @@ public class TodoService(ITodoRepository repository) : ITodoService
 {
     private readonly ITodoRepository _repository = repository;
 
-    public OperationsStatus AddTodo(Todo todo)
+    public async Task AddTodoAsync(Todo todo)
     {
-        if (todo == null) return OperationsStatus.InvalidEntry;
-
-        _repository.AddTodo(todo);
-        return OperationsStatus.Success;
+        await _repository.AddTodoAsync(todo);
     }
 
-    public OperationsStatus DeleteTodo(int id)
+    public async Task DeleteTodoAsync(int id)
     {
-        var todo = _repository.GetId(id);
+       var usuario = await _repository.GetIdAsync(id);
 
-        if (todo == null) return OperationsStatus.NotFound;
-
-        _repository.DeleteTodo(todo);
-        return OperationsStatus.Success;
+       if (usuario != null)
+       {
+            await _repository.DeleteTodoAsync(usuario);
+       }
     }
 
-    public IQueryable<Todo> GetAll() => _repository.GetAll();
-
-    public (OperationsStatus, Todo?) GetId(int id)
+    public async Task<List<Todo>> GetAllAsync()
     {
-        if (id <= 0) return (OperationsStatus.InvalidEntry, null);
-
-        var todo = _repository.GetId(id);
-        
-        if(todo == null) return (OperationsStatus.NotFound, null);
-
-        return (OperationsStatus.Success, todo);
+        return await _repository.GetAll().ToListAsync();
     }
 
-    public (OperationsStatus, IQueryable<Todo>) GetTitle(string title)
+    public async Task<Todo> GetIdAsync(int id)
     {
-        // Retorna uma coleção vazia
-        if (String.IsNullOrWhiteSpace(title)) return (OperationsStatus.InvalidEntry, Enumerable.Empty<Todo>().AsQueryable());
+        var usuario = await _repository.GetIdAsync(id);
 
-        var todo = _repository.GetTitle(title);
-
-        return todo.Any() ? (OperationsStatus.Success, todo) : (OperationsStatus.NotFound, Enumerable.Empty<Todo>().AsQueryable());
+        if (usuario != null)
+        {
+            return usuario;
+        }
+        else 
+        {
+            throw new NullReferenceException("Todo not found");
+        }
     }
 
-    public OperationsStatus UpdateTodo(Todo todo)
+    public async Task<List<Todo>> GetTitleAsync(string title)
     {
-        if (todo == null) return OperationsStatus.InvalidEntry;
+        return await _repository.GetTitle(title).ToListAsync();
+    }
 
-        var existingTodo = _repository.GetId(todo.Id);
-        if (existingTodo == null) return OperationsStatus.NotFound;
-
-        _repository.UpdateTodo(todo);
-
-        return OperationsStatus.Success;
+    public Task UpdateTodoAsync(Todo todo)
+    {
+        return _repository.UpdateTodoAsync(todo);
     }
 }
