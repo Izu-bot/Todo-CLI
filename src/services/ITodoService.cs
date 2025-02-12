@@ -5,10 +5,10 @@ namespace todo.src.services;
 
 public interface ITodoService
 {
-    IQueryable<Todo> GetAll();
-    (OperationsStatus, IQueryable<Todo>) GetTitle(string title);
-    (OperationsStatus, Todo?) GetId(int id);
-    OperationsStatus AddTodo(Todo todo);
-    OperationsStatus UpdateTodo(Todo todo);
-    OperationsStatus DeleteTodo(int id);
+    Task<List<Todo>> GetAllAsync();
+    Task<List<Todo>> GetTitleAsync(string title);
+    Task<Todo> GetIdAsync(int id);
+    Task AddTodoAsync(Todo todo);
+    Task UpdateTodoAsync(Todo todo);
+    Task DeleteTodoAsync(int id);
 }

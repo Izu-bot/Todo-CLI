@@ -49,8 +49,8 @@ public class DeleteCommand : Command
             if (cki.Key == ConsoleKey.Y)
             {
                 ColorConsole.HighlightMessage($"\nTask {id} was removed successfully", ConsoleColor.Green);
-                _service.DeleteTodo(id);
-                ViewList.ViewListDetail([.. _service.GetAll()]);
+                _service.DeleteTodoAsync(id);
+                ViewList.ViewListDetail(_service.GetAllAsync().Result);
             }
             else
             {

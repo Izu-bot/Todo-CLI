@@ -15,10 +15,10 @@ public class ListCommand : Command
         _service = service;
 
         var titleOptions = new Option<string>(
-            name: "--name",
+            name: "--title",
             description: "An option to search by names"
         );
-        titleOptions.AddAlias("-n");
+        titleOptions.AddAlias("-t");
 
         var idOptions = new Option<int>(
             name: "--id",
@@ -37,37 +37,34 @@ public class ListCommand : Command
         AddOption(titleOptions);
         AddOption(idOptions);
 
-        this.SetHandler((name, id) =>
+        this.SetHandler(async (name, id) =>
         {
-
             if (String.IsNullOrWhiteSpace(name))
             {
                 if (id != 0)
                 {
-                    var (status, todo) = _service.GetId(id);
+                    var todo = await _service.GetIdAsync(id);
 
-                    if (status.IsSuccess() && todo != null) ViewList.ViewListDetail(new List<Todo> { todo });
+                    if (todo != null) ViewList.ViewListDetail([todo]);
                     else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
-
                 }
                 else
                 {
-                    var todos = _service.GetAll();
+                    var todos = await _service.GetAllAsync();
 
-                    ViewList.ViewListDetail([.. todos]);
+                    ViewList.ViewListDetail(todos);
                 }
             }
             else
             {
-                var (status, todos) = _service.GetTitle(name);
+               var todos = await _service.GetTitleAsync(name);
 
-                if (status.IsSuccess())
+                if (todos != null)
                 {
-                    ViewList.ViewListDetail([.. todos]);
+                    ViewList.ViewListDetail(todos);
                 }
                 else ColorConsole.HighlightMessage($"Indicates that the resource was not found in your database. Check the Id number or Title passed in the search.", ConsoleColor.Red);
             }
-
         }, titleOptions, idOptions);
     }
 }

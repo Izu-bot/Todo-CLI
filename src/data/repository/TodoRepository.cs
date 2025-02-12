@@ -6,27 +6,37 @@ namespace todo.src.data.repository;
 public class TodoRepository(ApplicationDbContext context) : ITodoRepository
 {
     private readonly ApplicationDbContext _context = context;
-    public void AddTodo(Todo todo)
+
+    public async Task AddTodoAsync(Todo todo)
     {
-        _context.Todos.Add(todo);
-        _context.SaveChanges();
+        await _context.Todos.AddAsync(todo);
+        await _context.SaveChangesAsync();
     }
 
-    public void DeleteTodo(Todo todo)
+    public async Task DeleteTodoAsync(Todo todo)
     {
         _context.Todos.Remove(todo);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public IQueryable<Todo> GetAll() => _context.Todos.AsQueryable();
+    public IQueryable<Todo> GetAll()
+    {
+        return _context.Todos.AsQueryable();
+    }
 
-    public Todo? GetId(int id) => _context.Todos.FirstOrDefault(i => i.Id == id);
+    public async Task<Todo?> GetIdAsync(int id)
+    {
+        return await _context.Todos.FindAsync(id);
+    }
 
-    public IQueryable<Todo> GetTitle(string title) => _context.Todos.Where(n => n.Title!.ToLower() == title.ToLower()).AsNoTracking();
+    public IQueryable<Todo> GetTitle(string title)
+    {
+        return _context.Todos.Where(t => title == t.Title); // t => t.Title.Contains(title)
+    }
 
-    public void UpdateTodo(Todo todo)
+    public async Task UpdateTodoAsync(Todo todo)
     {
         _context.Todos.Update(todo);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }
