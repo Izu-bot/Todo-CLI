@@ -34,7 +34,7 @@ public class DeleteCommand : Command
         this.SetHandler((int id) =>
         {
             ColorConsole.HighlightMessage("Are you sure you want to remove the task?\ny(yes) n(no)", ConsoleColor.Yellow);
-            
+
             do
             {
                 cki = Console.ReadKey(true);
@@ -48,9 +48,18 @@ public class DeleteCommand : Command
 
             if (cki.Key == ConsoleKey.Y)
             {
-                ColorConsole.HighlightMessage($"\nTask {id} was removed successfully", ConsoleColor.Green);
-                _service.DeleteTodoAsync(id);
-                ViewList.ViewListDetail(_service.GetAllAsync().Result);
+                var todo = _service.DeleteTodoAsync(id);
+                if (todo.IsCompletedSuccessfully)
+                {
+                    ColorConsole.HighlightMessage($"\nTask {id} was removed successfully", ConsoleColor.Green);
+                    ViewList.ViewListDetail(_service.GetAllAsync().Result);
+
+                }
+                else
+                {
+                    ColorConsole.HighlightMessage($"Task {id} not found", ConsoleColor.Red);
+                    return;
+                }
             }
             else
             {

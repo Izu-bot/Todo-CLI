@@ -15,12 +15,16 @@ public class TodoService(ITodoRepository repository) : ITodoService
 
     public async Task DeleteTodoAsync(int id)
     {
-       var usuario = await _repository.GetIdAsync(id);
+        var usuario = await _repository.GetIdAsync(id);
 
-       if (usuario != null)
-       {
+        if (usuario == null)
+        {
+            throw new NullReferenceException("Todo not found");
+        }
+        else
+        {
             await _repository.DeleteTodoAsync(usuario);
-       }
+        }
     }
 
     public async Task<List<Todo>> GetAllAsync()
@@ -36,23 +40,23 @@ public class TodoService(ITodoRepository repository) : ITodoService
         {
             return usuario;
         }
-        else 
+        else
         {
-            throw new NullReferenceException("Todo not found");
+            return null!;
         }
     }
 
     public async Task<List<Todo>> GetTitleAsync(string title)
     {
-        var task = await _repository.GetTitle(title).ToListAsync();
+        var todos = await _repository.GetTitle(title).ToListAsync();
 
-        if (task != null)
+        if (todos.Count == 0)
         {
-            return task;
+            return null!;
         }
         else
         {
-            throw new NullReferenceException("Todo not found");
+            return todos;
         }
     }
 
