@@ -43,7 +43,9 @@ public class ListCommand : Command
 
         this.SetHandler(async (string[] name, int id) =>
         {
-            if (String.IsNullOrWhiteSpace(name))
+            var titleFormat = string.Join(" ", name);
+
+            if (String.IsNullOrWhiteSpace(titleFormat))
             {
                 if (id != 0)
                 {
@@ -61,7 +63,7 @@ public class ListCommand : Command
             }
             else
             {
-               var todos = await _service.GetTitleAsync(name);
+               var todos = await _service.GetTitleAsync(titleFormat);
 
                 if (todos != null)
                 {
