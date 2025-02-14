@@ -31,7 +31,7 @@ public class TodoRepository(ApplicationDbContext context) : ITodoRepository
 
     public IQueryable<Todo> GetTitle(string title)
     {
-        return _context.Todos.Where(t => title == t.Title); // t => t.Title.Contains(title)
+        return _context.Todos.Where(t => t.Title!.Contains(title)); // t => t.Title.Contains(title)
     }
 
     public async Task UpdateTodoAsync(Todo todo)
